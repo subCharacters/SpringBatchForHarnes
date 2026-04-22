@@ -1,0 +1,16 @@
+#!/bin/bash
+
+# 머지 커밋은 패스
+if [ -f ".git/MERGE_HEAD" ]; then
+  exit 0
+fi
+
+BRANCH=$(git symbolic-ref --short HEAD 2>/dev/null)
+
+if [ "$BRANCH" = "master" ] || [ "$BRANCH" = "main" ]; then
+  echo "❌ $BRANCH 브랜치에서 직접 커밋 금지! worktree를 먼저 생성하세요."
+  echo "👉 git worktree add .worktrees/<작업명> -b <브랜치명>"
+  exit 1
+fi
+
+exit 0
