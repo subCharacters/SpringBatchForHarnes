@@ -1,0 +1,52 @@
+#!/bin/bash
+
+COMMIT_MSG_FILE=$1
+COMMIT_MSG=$(cat "$COMMIT_MSG_FILE")
+
+# Merge, Revert 커밋은 패스
+if echo "$COMMIT_MSG" | grep -qE '^(Merge|Revert)'; then
+  exit 0
+fi
+
+TYPES="feat|fix|docs|style|refactor|test|chore|perf|ci|build|revert"
+FIRST_LINE=$(echo "$COMMIT_MSG" | head -n 1)
+
+# Conventional Commits 형식 체크
+if ! echo "$FIRST_LINE" | grep -qE "^($TYPES)(\(.+\))?: .+"; then
+  echo "❌ 커밋 메시지 형식 오류"
+  echo ""
+  echo "올바른 형식: <type>(<scope>): <subject>"
+  echo "             <type>: <subject>  (scope 생략 가능)"
+  echo ""
+  echo "사용 가능한 type:"
+  echo "  feat, fix, docs, style, refactor, test, chore, perf, ci, build, revert"
+  exit 1
+fi
+
+# 바디 필수 체크
+SECOND_LINE=$(echo "$COMMIT_MSG" | sed -n '2p')
+THIRD_LINE=$(echo "$COMMIT_MSG" | sed -n '3p')
+
+if [ -n "$SECOND_LINE" ]; then
+  echo "❌ 커밋 메시지 형식 오류: 제목과 바디 사이에 빈 줄이 필요합니다."
+  echo ""
+  echo "올바른 형식 예시:"
+  echo "  feat: 로그인 기능 추가"
+  echo ""
+  echo "  JWT 토큰 방식으로 인증 처리"
+  echo "  만료 시간은 24h로 설정"
+  exit 1
+fi
+
+if [ -z "$THIRD_LINE" ]; then
+  echo "❌ 커밋 메시지 형식 오류: 바디가 반드시 존재해야 합니다."
+  echo ""
+  echo "올바른 형식 예시:"
+  echo "  feat: 로그인 기능 추가"
+  echo ""
+  echo "  JWT 토큰 방식으로 인증 처리"
+  echo "  만료 시간은 24h로 설정"
+  exit 1
+fi
+
+exit 0
