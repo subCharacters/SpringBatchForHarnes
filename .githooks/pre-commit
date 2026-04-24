@@ -13,6 +13,25 @@ if [ "$BRANCH" = "master" ] || [ "$BRANCH" = "main" ]; then
   exit 1
 fi
 
+# 1. 컴파일 체크 (가장 빠름)
+echo "🔍 컴파일 체크 중..."
+./gradlew compileJava compileTestJava
+if [ $? -ne 0 ]; then
+  echo "❌ 컴파일 실패! 코드를 확인하세요." >&2
+  exit 1
+fi
+echo "✅ 컴파일 통과!"
+
+# 2. 빌드 체크 (테스트 제외)
+echo "🔍 빌드 체크 중..."
+./gradlew build -x test
+if [ $? -ne 0 ]; then
+  echo "❌ 빌드 실패! 코드를 확인하세요." >&2
+  exit 1
+fi
+echo "✅ 빌드 통과!"
+
+# 3. 테스트 및 커버리지 체크 (가장 느림, 마지막)
 echo "🔍 테스트 및 커버리지 체크 중..."
 ./gradlew test jacocoTestReport jacocoTestCoverageVerification
 if [ $? -ne 0 ]; then
