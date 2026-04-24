@@ -1,5 +1,6 @@
 plugins {
     id 'java'
+    id 'jacoco'  // JaCoCo 플러그인: 테스트 커버리지 측정
     id 'org.springframework.boot' version '4.0.5'
     id 'io.spring.dependency-management' version '1.1.7'
 }
@@ -32,6 +33,49 @@ dependencies {
     testAnnotationProcessor 'org.projectlombok:lombok'
 }
 
+// lombok.config 변경 시 컴파일 재실행 보장 (캐시 무효화)
+tasks.named('compileJava') {
+    inputs.file('lombok.config')
+}
+
 tasks.named('test') {
     useJUnitPlatform()
+    outputs.upToDateWhen { false }       // 매 빌드마다 테스트 강제 실행 (캐시 우회)
+    finalizedBy tasks.named('jacocoTestReport')  // 테스트 완료 후 커버리지 리포트 생성
+}
+
+// 커버리지 리포트 생성 (build/reports/jacoco/test/html)
+tasks.named('jacocoTestReport') {
+    finalizedBy tasks.named('jacocoTestCoverageVerification')  // 리포트 생성 후 기준 검증
+    reports {
+        xml.required = true   // CI 도구 연동용
+        html.required = true  // 로컬 확인용
+    }
+    // 엔트리포인트와 Job 설정 클래스는 비즈니스 로직이 없으므로 측정 제외
+    classDirectories.setFrom(
+        fileTree(layout.buildDirectory.dir("classes/java/main")) {
+            exclude '**/*Application*'
+            exclude '**/job/**'
+        }
+    )
+}
+
+// 커버리지 기준 미달 시 빌드 실패 처리
+tasks.named('jacocoTestCoverageVerification') {
+    // 리포트와 동일한 대상 클래스로 검증 (설정 불일치 방지)
+    classDirectories.setFrom(
+        fileTree(layout.buildDirectory.dir("classes/java/main")) {
+            exclude '**/*Application*'
+            exclude '**/job/**'
+        }
+    )
+    violationRules {
+        rule {
+            limit {
+                counter = 'LINE'          // 라인 커버리지 기준
+                value = 'COVEREDRATIO'
+                minimum = 0.80            // 80% 미만이면 빌드 실패
+            }
+        }
+    }
 }
