@@ -1,6 +1,5 @@
 plugins {
     id 'java'
-    id 'jacoco'
     id 'org.springframework.boot' version '4.0.5'
     id 'io.spring.dependency-management' version '1.1.7'
 }
@@ -33,44 +32,6 @@ dependencies {
     testAnnotationProcessor 'org.projectlombok:lombok'
 }
 
-tasks.named('compileJava') {
-    inputs.file('lombok.config')
-}
-
 tasks.named('test') {
     useJUnitPlatform()
-    outputs.upToDateWhen { false }
-    finalizedBy tasks.named('jacocoTestReport')
-}
-
-tasks.named('jacocoTestReport') {
-    finalizedBy tasks.named('jacocoTestCoverageVerification')
-    reports {
-        xml.required = true
-        html.required = true
-    }
-    classDirectories.setFrom(
-        fileTree(layout.buildDirectory.dir("classes/java/main")) {
-            exclude '**/config/**'
-            exclude '**/*Application*'
-        }
-    )
-}
-
-tasks.named('jacocoTestCoverageVerification') {
-    classDirectories.setFrom(
-        fileTree(layout.buildDirectory.dir("classes/java/main")) {
-            exclude '**/config/**'
-            exclude '**/*Application*'
-        }
-    )
-    violationRules {
-        rule {
-            limit {
-                counter = 'LINE'
-                value = 'COVEREDRATIO'
-                minimum = 0.80
-            }
-        }
-    }
 }

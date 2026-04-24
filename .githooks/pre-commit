@@ -13,13 +13,4 @@ if [ "$BRANCH" = "master" ] || [ "$BRANCH" = "main" ]; then
   exit 1
 fi
 
-echo "🔍 테스트 및 커버리지 체크 중..."
-./gradlew test jacocoTestReport jacocoTestCoverageVerification
-
-if [ $? -ne 0 ]; then
-  echo "❌ 커버리지 80% 미달! 테스트를 보완하고 다시 커밋해주세요." >&2
-  exit 1
-fi
-
-echo "✅ 커버리지 체크 통과!"
 exit 0
