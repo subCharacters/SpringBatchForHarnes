@@ -1,52 +1,74 @@
 #!/bin/bash
 
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+source "$SCRIPT_DIR/lib/log.sh"
+
+HOOK="GIT:commit-msg"
+
 COMMIT_MSG_FILE=$1
 COMMIT_MSG=$(cat "$COMMIT_MSG_FILE")
 
-# Merge, Revert 커밋은 패스
+# =====================
+# Merge / Revert 스킵
+# =====================
 if echo "$COMMIT_MSG" | grep -qE '^(Merge|Revert)'; then
+  echo_log "$HOOK" "⏭️  Merge/Revert 커밋 감지 — 훅 스킵"
   exit 0
 fi
 
 TYPES="feat|fix|docs|style|refactor|test|chore|perf|ci|build|revert"
 FIRST_LINE=$(echo "$COMMIT_MSG" | head -n 1)
 
+# =====================
 # Conventional Commits 형식 체크
+# =====================
+echo_log "$HOOK" "🔍 커밋 메시지 형식 체크 중..."
+
 if ! echo "$FIRST_LINE" | grep -qE "^($TYPES)(\(.+\))?: .+"; then
-  echo "❌ 커밋 메시지 형식 오류"
-  echo ""
-  echo "올바른 형식: <type>(<scope>): <subject>"
-  echo "             <type>: <subject>  (scope 생략 가능)"
-  echo ""
-  echo "사용 가능한 type:"
-  echo "  feat, fix, docs, style, refactor, test, chore, perf, ci, build, revert"
+  log_fail "$HOOK" "커밋 메시지 형식 오류"
+  log_error "$HOOK" "커밋 메시지 형식 오류" "입력된 메시지: $FIRST_LINE"
+  echo_log "$HOOK" "❌ 커밋 메시지 형식 오류"
+  echo_log "$HOOK" ""
+  echo_log "$HOOK" "올바른 형식: <type>(<scope>): <subject>"
+  echo_log "$HOOK" "             <type>: <subject>  (scope 생략 가능)"
+  echo_log "$HOOK" ""
+  echo_log "$HOOK" "사용 가능한 type:"
+  echo_log "$HOOK" "  feat, fix, docs, style, refactor, test, chore, perf, ci, build, revert"
   exit 1
 fi
 
+# =====================
 # 바디 필수 체크
+# =====================
 SECOND_LINE=$(echo "$COMMIT_MSG" | sed -n '2p')
 THIRD_LINE=$(echo "$COMMIT_MSG" | sed -n '3p')
 
+echo_log "$HOOK" "🔍 바디 필수 체크 중..."
 if [ -n "$SECOND_LINE" ]; then
-  echo "❌ 커밋 메시지 형식 오류: 제목과 바디 사이에 빈 줄이 필요합니다."
-  echo ""
-  echo "올바른 형식 예시:"
-  echo "  feat: 로그인 기능 추가"
-  echo ""
-  echo "  JWT 토큰 방식으로 인증 처리"
-  echo "  만료 시간은 24h로 설정"
+  log_fail "$HOOK" "제목과 바디 사이 빈 줄 누락"
+  log_error "$HOOK" "제목과 바디 사이 빈 줄 누락" "2번째 줄: \"$SECOND_LINE\""
+  echo_log "$HOOK" "❌ 커밋 메시지 형식 오류: 제목과 바디 사이에 빈 줄이 필요합니다."
+  echo_log "$HOOK" ""
+  echo_log "$HOOK" "올바른 형식 예시:"
+  echo_log "$HOOK" "  feat: 로그인 기능 추가"
+  echo_log "$HOOK" ""
+  echo_log "$HOOK" "  JWT 토큰 방식으로 인증 처리"
+  echo_log "$HOOK" "  만료 시간은 24h로 설정"
   exit 1
 fi
 
 if [ -z "$THIRD_LINE" ]; then
-  echo "❌ 커밋 메시지 형식 오류: 바디가 반드시 존재해야 합니다."
-  echo ""
-  echo "올바른 형식 예시:"
-  echo "  feat: 로그인 기능 추가"
-  echo ""
-  echo "  JWT 토큰 방식으로 인증 처리"
-  echo "  만료 시간은 24h로 설정"
+  log_fail "$HOOK" "커밋 메시지 바디 누락"
+  log_error "$HOOK" "커밋 메시지 바디 누락" "제목: \"$FIRST_LINE\""
+  echo_log "$HOOK" "❌ 커밋 메시지 형식 오류: 바디가 반드시 존재해야 합니다."
+  echo_log "$HOOK" ""
+  echo_log "$HOOK" "올바른 형식 예시:"
+  echo_log "$HOOK" "  feat: 로그인 기능 추가"
+  echo_log "$HOOK" ""
+  echo_log "$HOOK" "  JWT 토큰 방식으로 인증 처리"
+  echo_log "$HOOK" "  만료 시간은 24h로 설정"
   exit 1
 fi
 
+echo_log "$HOOK" "✅ 커밋 메시지 형식 통과!"
 exit 0

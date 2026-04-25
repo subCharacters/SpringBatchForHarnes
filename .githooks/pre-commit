@@ -1,42 +1,82 @@
 #!/bin/bash
 
-# 머지 커밋은 패스
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+source "$SCRIPT_DIR/lib/log.sh"
+
+HOOK="GIT:pre-commit"
+
+# =====================
+# 머지 커밋 스킵
+# =====================
 if [ -f ".git/MERGE_HEAD" ]; then
+  echo_log "$HOOK" "⏭️  머지 커밋 감지 — 훅 스킵"
   exit 0
 fi
 
+# =====================
+# 브랜치 직접 커밋 차단
+# =====================
 BRANCH=$(git symbolic-ref --short HEAD 2>/dev/null)
 
+echo_log "$HOOK" "🔍 브랜치 체크 중... ($BRANCH)"
 if [ "$BRANCH" = "master" ] || [ "$BRANCH" = "main" ]; then
-  echo "❌ $BRANCH 브랜치에서 직접 커밋 금지! worktree를 먼저 생성하세요."
-  echo "👉 git worktree add .worktrees/<작업명> -b <브랜치명>"
+  log_fail "$HOOK" "$BRANCH 브랜치 직접 커밋 시도 차단"
+  log_error "$HOOK" "$BRANCH 브랜치 직접 커밋 차단" "브랜치: $BRANCH"
+  echo_log "$HOOK" "❌ $BRANCH 브랜치에서 직접 커밋 금지! worktree를 먼저 생성하세요."
+  echo_log "$HOOK" "👉 git worktree add .worktrees/<작업명> -b <브랜치명>"
   exit 1
 fi
+echo_log "$HOOK" "✅ 브랜치 체크 통과! ($BRANCH)"
 
-# 1. 컴파일 체크 (가장 빠름)
-echo "🔍 컴파일 체크 중..."
-./gradlew compileJava compileTestJava
-if [ $? -ne 0 ]; then
-  echo "❌ 컴파일 실패! 코드를 확인하세요." >&2
+# =====================
+# 컴파일 체크
+# =====================
+echo_log "$HOOK" "🔍 컴파일 체크 중..."
+TMPFILE=$(mktemp)
+./gradlew compileJava compileTestJava 2>&1 | tee "$TMPFILE"
+GRADLE_EXIT=${PIPESTATUS[0]}
+if [ $GRADLE_EXIT -ne 0 ]; then
+  log_fail "$HOOK" "컴파일 실패"
+  log_error "$HOOK" "컴파일 실패" "$(cat "$TMPFILE")"
+  rm -f "$TMPFILE"
+  echo_log "$HOOK" "❌ 컴파일 실패! 코드를 확인하세요." >&2
   exit 1
 fi
-echo "✅ 컴파일 통과!"
+rm -f "$TMPFILE"
+echo_log "$HOOK" "✅ 컴파일 통과!"
 
-# 2. 빌드 체크 (테스트 제외)
-echo "🔍 빌드 체크 중..."
-./gradlew build -x test
-if [ $? -ne 0 ]; then
-  echo "❌ 빌드 실패! 코드를 확인하세요." >&2
+# =====================
+# 빌드 체크
+# =====================
+echo_log "$HOOK" "🔍 빌드 체크 중..."
+TMPFILE=$(mktemp)
+./gradlew build -x test 2>&1 | tee "$TMPFILE"
+GRADLE_EXIT=${PIPESTATUS[0]}
+if [ $GRADLE_EXIT -ne 0 ]; then
+  log_fail "$HOOK" "빌드 실패"
+  log_error "$HOOK" "빌드 실패" "$(cat "$TMPFILE")"
+  rm -f "$TMPFILE"
+  echo_log "$HOOK" "❌ 빌드 실패! 코드를 확인하세요." >&2
   exit 1
 fi
-echo "✅ 빌드 통과!"
+rm -f "$TMPFILE"
+echo_log "$HOOK" "✅ 빌드 통과!"
 
-# 3. 테스트 및 커버리지 체크 (가장 느림, 마지막)
-echo "🔍 테스트 및 커버리지 체크 중..."
-./gradlew test jacocoTestReport jacocoTestCoverageVerification
-if [ $? -ne 0 ]; then
-  echo "❌ 커버리지 80% 미달! 테스트를 보완하고 다시 커밋해주세요." >&2
+# =====================
+# 테스트 및 커버리지 체크
+# =====================
+echo_log "$HOOK" "🔍 테스트 및 커버리지 체크 중..."
+TMPFILE=$(mktemp)
+./gradlew test jacocoTestReport jacocoTestCoverageVerification 2>&1 | tee "$TMPFILE"
+GRADLE_EXIT=${PIPESTATUS[0]}
+if [ $GRADLE_EXIT -ne 0 ]; then
+  log_fail "$HOOK" "커버리지 80% 미달"
+  log_error "$HOOK" "커버리지 80% 미달" "$(cat "$TMPFILE")"
+  rm -f "$TMPFILE"
+  echo_log "$HOOK" "❌ 커버리지 80% 미달! 테스트를 보완하고 다시 커밋해주세요." >&2
   exit 1
 fi
-echo "✅ 커버리지 체크 통과!"
+rm -f "$TMPFILE"
+echo_log "$HOOK" "✅ 커버리지 체크 통과!"
+
 exit 0
