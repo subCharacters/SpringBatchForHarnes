@@ -73,3 +73,14 @@ log_skip() {
   _log_init
   _log_write "$hook" "SKIP" "$msg"
 }
+
+# 터미널 출력과 동시에 로그 파일에도 기록
+echo_log() {
+  local hook="$1"
+  local msg="${*:2}"
+  echo "$msg"
+  _log_init
+  local ts
+  ts=$(date '+%Y-%m-%d %H:%M:%S')
+  echo "[$ts] [$hook] $msg" >> "$LOG_FILE"
+}
