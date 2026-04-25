@@ -23,8 +23,8 @@ _log_init() {
     fi
   fi
 
-  # 30일 지난 파일 자동 삭제
-  find "$LOG_DIR" -type f -mtime +30 -delete 2>/dev/null
+  # 3일 지난 파일 자동 삭제
+  find "$LOG_DIR" -type f -mtime +3 -delete 2>/dev/null
 }
 
 _log_write() {
