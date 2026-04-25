@@ -10,6 +10,7 @@ HOOK="GIT:pre-commit"
 # =====================
 if [ -f ".git/MERGE_HEAD" ]; then
   log_skip "$HOOK" "머지 커밋 감지 — 훅 스킵"
+  echo "⏭️  머지 커밋 감지 — 훅 스킵"
   exit 0
 fi
 
@@ -18,6 +19,7 @@ fi
 # =====================
 BRANCH=$(git symbolic-ref --short HEAD 2>/dev/null)
 
+echo "🔍 브랜치 체크 중... ($BRANCH)"
 if [ "$BRANCH" = "master" ] || [ "$BRANCH" = "main" ]; then
   log_fail "$HOOK" "$BRANCH 브랜치 직접 커밋 시도 차단"
   log_error "$HOOK" "$BRANCH 브랜치 직접 커밋 차단" "브랜치: $BRANCH"
@@ -25,6 +27,7 @@ if [ "$BRANCH" = "master" ] || [ "$BRANCH" = "main" ]; then
   echo "👉 git worktree add .worktrees/<작업명> -b <브랜치명>"
   exit 1
 fi
+echo "✅ 브랜치 체크 통과! ($BRANCH)"
 
 # =====================
 # 컴파일 체크

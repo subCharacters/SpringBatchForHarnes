@@ -23,6 +23,7 @@ FIRST_LINE=$(echo "$COMMIT_MSG" | head -n 1)
 # Conventional Commits 형식 체크
 # =====================
 log_info "$HOOK" "커밋 메시지 형식 체크 중... (\"$FIRST_LINE\")"
+echo "🔍 커밋 메시지 형식 체크 중..."
 
 if ! echo "$FIRST_LINE" | grep -qE "^($TYPES)(\(.+\))?: .+"; then
   log_fail "$HOOK" "커밋 메시지 형식 오류"
@@ -43,6 +44,7 @@ fi
 SECOND_LINE=$(echo "$COMMIT_MSG" | sed -n '2p')
 THIRD_LINE=$(echo "$COMMIT_MSG" | sed -n '3p')
 
+echo "🔍 바디 필수 체크 중..."
 if [ -n "$SECOND_LINE" ]; then
   log_fail "$HOOK" "제목과 바디 사이 빈 줄 누락"
   log_error "$HOOK" "제목과 바디 사이 빈 줄 누락" "2번째 줄: \"$SECOND_LINE\""
@@ -70,4 +72,5 @@ if [ -z "$THIRD_LINE" ]; then
 fi
 
 log_success "$HOOK" "커밋 메시지 형식 통과"
+echo "✅ 커밋 메시지 형식 통과!"
 exit 0

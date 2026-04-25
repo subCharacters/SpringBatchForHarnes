@@ -8,7 +8,9 @@ HOOK="CLAUDE:PreToolUse"
 INPUT=$(cat)
 FILE_PATH=$(echo "$INPUT" | grep -o '"file_path":"[^"]*"' | sed 's/"file_path":"//;s/"//')
 
+echo "🔍 worktree 체크 중... ($FILE_PATH)" >&2
 if echo "$FILE_PATH" | grep -q '\.worktrees/'; then
+  echo "✅ worktree 확인됨" >&2
   exit 0
 fi
 
