@@ -1,18 +1,32 @@
 #!/bin/bash
 
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+source "$SCRIPT_DIR/lib/log.sh"
+
+HOOK="GIT:commit-msg"
+
 COMMIT_MSG_FILE=$1
 COMMIT_MSG=$(cat "$COMMIT_MSG_FILE")
 
-# Merge, Revert 커밋은 패스
+# =====================
+# Merge / Revert 스킵
+# =====================
 if echo "$COMMIT_MSG" | grep -qE '^(Merge|Revert)'; then
+  log_skip "$HOOK" "Merge/Revert 커밋 감지 — 훅 스킵"
   exit 0
 fi
 
 TYPES="feat|fix|docs|style|refactor|test|chore|perf|ci|build|revert"
 FIRST_LINE=$(echo "$COMMIT_MSG" | head -n 1)
 
+# =====================
 # Conventional Commits 형식 체크
+# =====================
+log_info "$HOOK" "커밋 메시지 형식 체크 중... (\"$FIRST_LINE\")"
+
 if ! echo "$FIRST_LINE" | grep -qE "^($TYPES)(\(.+\))?: .+"; then
+  log_fail "$HOOK" "커밋 메시지 형식 오류"
+  log_error "$HOOK" "커밋 메시지 형식 오류" "입력된 메시지: $FIRST_LINE"
   echo "❌ 커밋 메시지 형식 오류"
   echo ""
   echo "올바른 형식: <type>(<scope>): <subject>"
@@ -23,11 +37,15 @@ if ! echo "$FIRST_LINE" | grep -qE "^($TYPES)(\(.+\))?: .+"; then
   exit 1
 fi
 
+# =====================
 # 바디 필수 체크
+# =====================
 SECOND_LINE=$(echo "$COMMIT_MSG" | sed -n '2p')
 THIRD_LINE=$(echo "$COMMIT_MSG" | sed -n '3p')
 
 if [ -n "$SECOND_LINE" ]; then
+  log_fail "$HOOK" "제목과 바디 사이 빈 줄 누락"
+  log_error "$HOOK" "제목과 바디 사이 빈 줄 누락" "2번째 줄: \"$SECOND_LINE\""
   echo "❌ 커밋 메시지 형식 오류: 제목과 바디 사이에 빈 줄이 필요합니다."
   echo ""
   echo "올바른 형식 예시:"
@@ -39,6 +57,8 @@ if [ -n "$SECOND_LINE" ]; then
 fi
 
 if [ -z "$THIRD_LINE" ]; then
+  log_fail "$HOOK" "커밋 메시지 바디 누락"
+  log_error "$HOOK" "커밋 메시지 바디 누락" "제목: \"$FIRST_LINE\""
   echo "❌ 커밋 메시지 형식 오류: 바디가 반드시 존재해야 합니다."
   echo ""
   echo "올바른 형식 예시:"
@@ -49,4 +69,5 @@ if [ -z "$THIRD_LINE" ]; then
   exit 1
 fi
 
+log_success "$HOOK" "커밋 메시지 형식 통과"
 exit 0
