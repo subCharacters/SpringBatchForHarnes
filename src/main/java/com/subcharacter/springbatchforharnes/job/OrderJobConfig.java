@@ -12,24 +12,26 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.transaction.PlatformTransactionManager;
 
+/** 주문 처리 배치 Job 설정. */
 @Slf4j
 @Configuration
 @RequiredArgsConstructor
 public class OrderJobConfig {
 
-    private final OrderProcessingTasklet orderProcessingTasklet;
+  private final OrderProcessingTasklet orderProcessingTasklet;
 
-    @Bean
-    public Job orderJob(JobRepository jobRepository, Step orderStep) {
-        return new JobBuilder("orderJob", jobRepository)
-                .start(orderStep)
-                .build();
-    }
+  /** 주문 처리 Job 빈. */
+  @Bean
+  public Job orderJob(JobRepository jobRepository, Step orderStep) {
+    return new JobBuilder("orderJob", jobRepository).start(orderStep).build();
+  }
 
-    @Bean
-    public Step orderStep(JobRepository jobRepository, PlatformTransactionManager transactionManager) {
-        return new StepBuilder("orderStep", jobRepository)
-                .tasklet(orderProcessingTasklet, transactionManager)
-                .build();
-    }
+  /** 주문 처리 Step 빈. */
+  @Bean
+  public Step orderStep(
+      JobRepository jobRepository, PlatformTransactionManager transactionManager) {
+    return new StepBuilder("orderStep", jobRepository)
+        .tasklet(orderProcessingTasklet, transactionManager)
+        .build();
+  }
 }

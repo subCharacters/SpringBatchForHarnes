@@ -1,6 +1,7 @@
 plugins {
     id 'java'
     id 'jacoco'  // JaCoCo 플러그인: 테스트 커버리지 측정
+    id 'checkstyle'
     id 'org.springframework.boot' version '4.0.5'
     id 'io.spring.dependency-management' version '1.1.7'
 }
@@ -54,7 +55,7 @@ tasks.named('jacocoTestReport') {
     // 엔트리포인트와 Job 설정 클래스는 비즈니스 로직이 없으므로 측정 제외
     classDirectories.setFrom(
         fileTree(layout.buildDirectory.dir("classes/java/main")) {
-            exclude '**/*Application*'
+            exclude '**/SpringBatchForHarnesApplication.java'
             exclude '**/job/**'
         }
     )
@@ -65,7 +66,7 @@ tasks.named('jacocoTestCoverageVerification') {
     // 리포트와 동일한 대상 클래스로 검증 (설정 불일치 방지)
     classDirectories.setFrom(
         fileTree(layout.buildDirectory.dir("classes/java/main")) {
-            exclude '**/*Application*'
+            exclude '**/SpringBatchForHarnesApplication.java'
             exclude '**/job/**'
         }
     )
@@ -77,5 +78,38 @@ tasks.named('jacocoTestCoverageVerification') {
                 minimum = 0.80            // 80% 미만이면 빌드 실패
             }
         }
+    }
+}
+
+// Checkstyle: Google Java Style 규칙 적용
+checkstyle {
+    toolVersion = '13.4.0'
+    configFile = file('config/checkstyle/google_checks.xml')
+    showViolations = true
+}
+
+tasks.withType(Checkstyle).configureEach {
+    exclude '**/SpringBatchForHarnesApplication.java'
+    reports {
+        xml.required = true
+        html.required = true
+    }
+}
+
+// Google Java Format: src/ 하위 모든 .java 파일 자동 포맷
+tasks.register('googleJavaFormat', JavaExec) {
+    classpath = files('libs/google-java-format-1.35.0-all-deps.jar')
+    mainClass = 'com.google.googlejavaformat.java.Main'
+    jvmArgs = [
+        '--add-exports=jdk.compiler/com.sun.tools.javac.api=ALL-UNNAMED',
+        '--add-exports=jdk.compiler/com.sun.tools.javac.code=ALL-UNNAMED',
+        '--add-exports=jdk.compiler/com.sun.tools.javac.file=ALL-UNNAMED',
+        '--add-exports=jdk.compiler/com.sun.tools.javac.parser=ALL-UNNAMED',
+        '--add-exports=jdk.compiler/com.sun.tools.javac.tree=ALL-UNNAMED',
+        '--add-exports=jdk.compiler/com.sun.tools.javac.util=ALL-UNNAMED',
+    ]
+    outputs.upToDateWhen { false }
+    doFirst {
+        args = ['--replace'] + fileTree('src').include('**/*.java').files.collect { it.absolutePath }
     }
 }
