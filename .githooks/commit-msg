@@ -12,7 +12,6 @@ COMMIT_MSG=$(cat "$COMMIT_MSG_FILE")
 # Merge / Revert 스킵
 # =====================
 if echo "$COMMIT_MSG" | grep -qE '^(Merge|Revert)'; then
-  log_skip "$HOOK" "Merge/Revert 커밋 감지 — 훅 스킵"
   echo_log "$HOOK" "⏭️  Merge/Revert 커밋 감지 — 훅 스킵"
   exit 0
 fi
@@ -23,7 +22,6 @@ FIRST_LINE=$(echo "$COMMIT_MSG" | head -n 1)
 # =====================
 # Conventional Commits 형식 체크
 # =====================
-log_info "$HOOK" "커밋 메시지 형식 체크 중... (\"$FIRST_LINE\")"
 echo_log "$HOOK" "🔍 커밋 메시지 형식 체크 중..."
 
 if ! echo "$FIRST_LINE" | grep -qE "^($TYPES)(\(.+\))?: .+"; then
@@ -72,6 +70,5 @@ if [ -z "$THIRD_LINE" ]; then
   exit 1
 fi
 
-log_success "$HOOK" "커밋 메시지 형식 통과"
 echo_log "$HOOK" "✅ 커밋 메시지 형식 통과!"
 exit 0

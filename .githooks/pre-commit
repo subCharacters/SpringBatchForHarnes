@@ -9,7 +9,6 @@ HOOK="GIT:pre-commit"
 # 머지 커밋 스킵
 # =====================
 if [ -f ".git/MERGE_HEAD" ]; then
-  log_skip "$HOOK" "머지 커밋 감지 — 훅 스킵"
   echo_log "$HOOK" "⏭️  머지 커밋 감지 — 훅 스킵"
   exit 0
 fi
@@ -32,7 +31,6 @@ echo_log "$HOOK" "✅ 브랜치 체크 통과! ($BRANCH)"
 # =====================
 # 컴파일 체크
 # =====================
-log_info "$HOOK" "컴파일 체크 중..."
 echo_log "$HOOK" "🔍 컴파일 체크 중..."
 TMPFILE=$(mktemp)
 ./gradlew compileJava compileTestJava 2>&1 | tee "$TMPFILE"
@@ -45,13 +43,11 @@ if [ $GRADLE_EXIT -ne 0 ]; then
   exit 1
 fi
 rm -f "$TMPFILE"
-log_success "$HOOK" "컴파일 통과"
 echo_log "$HOOK" "✅ 컴파일 통과!"
 
 # =====================
 # 빌드 체크
 # =====================
-log_info "$HOOK" "빌드 체크 중..."
 echo_log "$HOOK" "🔍 빌드 체크 중..."
 TMPFILE=$(mktemp)
 ./gradlew build -x test 2>&1 | tee "$TMPFILE"
@@ -64,13 +60,11 @@ if [ $GRADLE_EXIT -ne 0 ]; then
   exit 1
 fi
 rm -f "$TMPFILE"
-log_success "$HOOK" "빌드 통과"
 echo_log "$HOOK" "✅ 빌드 통과!"
 
 # =====================
 # 테스트 및 커버리지 체크
 # =====================
-log_info "$HOOK" "테스트 및 커버리지 체크 중..."
 echo_log "$HOOK" "🔍 테스트 및 커버리지 체크 중..."
 TMPFILE=$(mktemp)
 ./gradlew test jacocoTestReport jacocoTestCoverageVerification 2>&1 | tee "$TMPFILE"
@@ -83,7 +77,6 @@ if [ $GRADLE_EXIT -ne 0 ]; then
   exit 1
 fi
 rm -f "$TMPFILE"
-log_success "$HOOK" "커버리지 체크 통과"
 echo_log "$HOOK" "✅ 커버리지 체크 통과!"
 
 exit 0
