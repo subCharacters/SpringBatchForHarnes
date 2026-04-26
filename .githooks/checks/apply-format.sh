@@ -4,7 +4,7 @@ SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 REPO_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
 source "$REPO_ROOT/.githooks/lib/log.sh"
 
-HOOK="FORMAT"
+HOOK="APPLY:format"
 JAR="$REPO_ROOT/libs/google-java-format-1.35.0-all-deps.jar"
 JVM_ARGS=(
     "--add-exports=jdk.compiler/com.sun.tools.javac.api=ALL-UNNAMED"
