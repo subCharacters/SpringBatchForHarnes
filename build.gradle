@@ -2,6 +2,7 @@ plugins {
     id 'java'
     id 'jacoco'  // JaCoCo 플러그인: 테스트 커버리지 측정
     id 'checkstyle'
+    id 'com.github.spotbugs' version '6.1.11'
     id 'org.springframework.boot' version '4.0.5'
     id 'io.spring.dependency-management' version '1.1.7'
 }
@@ -90,6 +91,23 @@ checkstyle {
 
 tasks.withType(Checkstyle).configureEach {
     exclude '**/SpringBatchForHarnesApplication.java'
+    reports {
+        xml.required = true
+        html.required = true
+    }
+}
+
+// SpotBugs: 정적 버그 분석 (HIGH/MEDIUM 빌드 실패, LOW 경고 후 통과)
+// ignoreFailures=true 로 항상 리포트 생성 → spotbugs.sh 에서 레벨별 처리
+spotbugs {
+    toolVersion = '4.9.3'
+    effort = 'max'
+    reportLevel = 'low'  // LOW 이상 모두 탐지 (HIGH/MEDIUM/LOW)
+    excludeFilter = file('config/spotbugs/exclude.xml')
+    ignoreFailures = true
+}
+
+tasks.withType(com.github.spotbugs.snom.SpotBugsTask).configureEach {
     reports {
         xml.required = true
         html.required = true

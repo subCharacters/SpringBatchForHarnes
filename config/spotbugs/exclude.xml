@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<FindBugsFilter
+    xmlns="https://github.com/spotbugs/filter/4.0.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="https://github.com/spotbugs/filter/4.0.0 https://raw.githubusercontent.com/spotbugs/spotbugs/4.0.0/spotbugs/etc/findbugsfilter.xsd">
+
+    <!-- 엔트리포인트 클래스 전체 제외 -->
+    <Match>
+        <Class name="com.subcharacter.springbatchforharnes.SpringBatchForHarnesApplication"/>
+    </Match>
+
+    <!--
+        Spring @Autowired/@Value 필드 null 오탐 방지
+        - Spring이 런타임에 DI로 주입하지만 SpotBugs는 정적 분석 시 null로 인식
+    -->
+    <Match>
+        <Bug pattern="NP_UNWRITTEN_FIELD,UWF_UNWRITTEN_FIELD"/>
+    </Match>
+
+    <!--
+        Lombok @Data/@Getter의 mutable 객체 노출 오탐 방지
+        - @Data 가 생성하는 getter/setter 에서 배열·컬렉션 반환 시 발생
+    -->
+    <Match>
+        <Bug pattern="EI_EXPOSE_REP,EI_EXPOSE_REP2"/>
+    </Match>
+
+    <!--
+        Spring Bean 직렬화 오탐 방지
+        - Spring 컨텍스트 내 빈은 일반적으로 Serializable 구현이 불필요
+    -->
+    <Match>
+        <Bug pattern="SE_BAD_FIELD,SE_BAD_FIELD_INNER_CLASS,SE_NO_SERIALVERSIONID"/>
+    </Match>
+
+    <!--
+        Spring @Configuration 클래스의 비-final static 필드 오탐 방지
+        - @Bean 팩토리 메서드 및 CGLIB 프록시 패턴에서 빈번하게 발생
+    -->
+    <Match>
+        <Class name="~.*Config"/>
+        <Bug pattern="MS_SHOULD_BE_FINAL,ST_WRITE_TO_STATIC_FROM_INSTANCE_METHOD"/>
+    </Match>
+
+    <!--
+        Spring Batch Job/Step 설정 클래스 오탐 방지
+        - JobBuilderFactory, StepBuilderFactory 패턴에서 발생하는 오탐
+    -->
+    <Match>
+        <Package name="com.subcharacter.springbatchforharnes.job"/>
+        <Bug pattern="NP_NULL_ON_SOME_PATH_FROM_RETURN_VALUE"/>
+    </Match>
+
+</FindBugsFilter>
