@@ -29,54 +29,7 @@ fi
 echo_log "$HOOK" "✅ 브랜치 체크 통과! ($BRANCH)"
 
 # =====================
-# 컴파일 체크
+# 코드 품질 검사
 # =====================
-echo_log "$HOOK" "🔍 컴파일 체크 중..."
-TMPFILE=$(mktemp)
-./gradlew compileJava compileTestJava 2>&1 | tee "$TMPFILE"
-GRADLE_EXIT=${PIPESTATUS[0]}
-if [ $GRADLE_EXIT -ne 0 ]; then
-  log_fail "$HOOK" "컴파일 실패"
-  log_error "$HOOK" "컴파일 실패" "$(cat "$TMPFILE")"
-  rm -f "$TMPFILE"
-  echo_log "$HOOK" "❌ 컴파일 실패! 코드를 확인하세요." >&2
-  exit 1
-fi
-rm -f "$TMPFILE"
-echo_log "$HOOK" "✅ 컴파일 통과!"
-
-# =====================
-# 빌드 체크
-# =====================
-echo_log "$HOOK" "🔍 빌드 체크 중..."
-TMPFILE=$(mktemp)
-./gradlew build -x test 2>&1 | tee "$TMPFILE"
-GRADLE_EXIT=${PIPESTATUS[0]}
-if [ $GRADLE_EXIT -ne 0 ]; then
-  log_fail "$HOOK" "빌드 실패"
-  log_error "$HOOK" "빌드 실패" "$(cat "$TMPFILE")"
-  rm -f "$TMPFILE"
-  echo_log "$HOOK" "❌ 빌드 실패! 코드를 확인하세요." >&2
-  exit 1
-fi
-rm -f "$TMPFILE"
-echo_log "$HOOK" "✅ 빌드 통과!"
-
-# =====================
-# 테스트 및 커버리지 체크
-# =====================
-echo_log "$HOOK" "🔍 테스트 및 커버리지 체크 중..."
-TMPFILE=$(mktemp)
-./gradlew test jacocoTestReport jacocoTestCoverageVerification 2>&1 | tee "$TMPFILE"
-GRADLE_EXIT=${PIPESTATUS[0]}
-if [ $GRADLE_EXIT -ne 0 ]; then
-  log_fail "$HOOK" "커버리지 80% 미달"
-  log_error "$HOOK" "커버리지 80% 미달" "$(cat "$TMPFILE")"
-  rm -f "$TMPFILE"
-  echo_log "$HOOK" "❌ 커버리지 80% 미달! 테스트를 보완하고 다시 커밋해주세요." >&2
-  exit 1
-fi
-rm -f "$TMPFILE"
-echo_log "$HOOK" "✅ 커버리지 체크 통과!"
-
-exit 0
+bash "$SCRIPT_DIR/commit-verify.sh"
+exit $?

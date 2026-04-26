@@ -4,7 +4,7 @@ SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 REPO_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
 source "$REPO_ROOT/.githooks/lib/log.sh"
 
-HOOK="SPOTBUGS"
+HOOK="ANALYZE:bugs"
 REPORT_XML="$REPO_ROOT/build/reports/spotbugs/main.xml"
 REPORT_HTML="$REPO_ROOT/build/reports/spotbugs/main.html"
 

@@ -4,7 +4,7 @@ SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 REPO_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
 source "$REPO_ROOT/.githooks/lib/log.sh"
 
-HOOK="CHECKSTYLE"
+HOOK="CHECK:style"
 
 echo_log "$HOOK" "🔍 Checkstyle 검사 중..."
 
