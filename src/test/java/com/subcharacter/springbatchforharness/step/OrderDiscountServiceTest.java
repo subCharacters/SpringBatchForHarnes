@@ -1,10 +1,10 @@
-package com.subcharacter.springbatchforharnes.step;
+package com.subcharacter.springbatchforharness.step;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.within;
 
-import com.subcharacter.springbatchforharnes.domain.Order;
-import com.subcharacter.springbatchforharnes.domain.OrderStatus;
+import com.subcharacter.springbatchforharness.domain.Order;
+import com.subcharacter.springbatchforharness.domain.OrderStatus;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 

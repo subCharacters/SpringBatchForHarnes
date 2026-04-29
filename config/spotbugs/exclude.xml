@@ -6,7 +6,7 @@
 
     <!-- 엔트리포인트 클래스 전체 제외 -->
     <Match>
-        <Class name="com.subcharacter.springbatchforharnes.SpringBatchForHarnesApplication"/>
+        <Class name="com.subcharacter.springbatchforharness.SpringBatchForHarnessApplication"/>
     </Match>
 
     <!--
@@ -47,7 +47,7 @@
         - JobBuilderFactory, StepBuilderFactory 패턴에서 발생하는 오탐
     -->
     <Match>
-        <Package name="com.subcharacter.springbatchforharnes.job"/>
+        <Package name="com.subcharacter.springbatchforharness.job"/>
         <Bug pattern="NP_NULL_ON_SOME_PATH_FROM_RETURN_VALUE"/>
     </Match>
 

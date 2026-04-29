@@ -9,7 +9,7 @@ plugins {
 
 group = 'com.subcharacter'
 version = '0.0.1-SNAPSHOT'
-description = 'SpringBatchForHarnes'
+description = 'SpringBatchForHarness'
 
 java {
     toolchain {
@@ -56,7 +56,7 @@ tasks.named('jacocoTestReport') {
     // 엔트리포인트와 Job 설정 클래스는 비즈니스 로직이 없으므로 측정 제외
     classDirectories.setFrom(
         fileTree(layout.buildDirectory.dir("classes/java/main")) {
-            exclude '**/SpringBatchForHarnesApplication.java'
+            exclude '**/SpringBatchForHarnessApplication.java'
             exclude '**/job/**'
         }
     )
@@ -67,7 +67,7 @@ tasks.named('jacocoTestCoverageVerification') {
     // 리포트와 동일한 대상 클래스로 검증 (설정 불일치 방지)
     classDirectories.setFrom(
         fileTree(layout.buildDirectory.dir("classes/java/main")) {
-            exclude '**/SpringBatchForHarnesApplication.java'
+            exclude '**/SpringBatchForHarnessApplication.java'
             exclude '**/job/**'
             // 추가 가능: 필드만 있는 단순 DTO·도메인 클래스도 제외 — exclude '**/dto/**', exclude '**/domain/**'
         }
@@ -97,7 +97,7 @@ checkstyle {
 }
 
 tasks.withType(Checkstyle).configureEach {
-    exclude '**/SpringBatchForHarnesApplication.java'
+    exclude '**/SpringBatchForHarnessApplication.java'
     reports {
         xml.required = true
         html.required = true

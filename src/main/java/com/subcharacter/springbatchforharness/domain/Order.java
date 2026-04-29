@@ -1,4 +1,4 @@
-package com.subcharacter.springbatchforharnes.domain;
+package com.subcharacter.springbatchforharness.domain;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

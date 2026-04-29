@@ -1,4 +1,4 @@
-package com.subcharacter.springbatchforharnes.step;
+package com.subcharacter.springbatchforharness.step;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;

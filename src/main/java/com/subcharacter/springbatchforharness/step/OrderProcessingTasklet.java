@@ -1,7 +1,7 @@
-package com.subcharacter.springbatchforharnes.step;
+package com.subcharacter.springbatchforharness.step;
 
-import com.subcharacter.springbatchforharnes.domain.Order;
-import com.subcharacter.springbatchforharnes.domain.OrderStatus;
+import com.subcharacter.springbatchforharness.domain.Order;
+import com.subcharacter.springbatchforharness.domain.OrderStatus;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

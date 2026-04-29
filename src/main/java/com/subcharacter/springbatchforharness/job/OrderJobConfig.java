@@ -1,6 +1,6 @@
-package com.subcharacter.springbatchforharnes.job;
+package com.subcharacter.springbatchforharness.job;
 
-import com.subcharacter.springbatchforharnes.step.OrderProcessingTasklet;
+import com.subcharacter.springbatchforharness.step.OrderProcessingTasklet;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.batch.core.job.Job;

@@ -8,7 +8,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ./gradlew build          # Compile and package
 ./gradlew bootRun        # Run the application
 ./gradlew test           # Run all tests
-./gradlew test --tests "com.subcharacter.springbatchforharnes.SomeTest"  # Run a single test
+./gradlew test --tests "com.subcharacter.springbatchforharness.SomeTest"  # Run a single test
 ./gradlew clean build    # Clean rebuild
 ```
 
@@ -25,8 +25,8 @@ Java 21 is required (configured via Gradle toolchain).
 Spring Batch jobs follow a `Job → Step → ItemReader/ItemProcessor/ItemWriter` pattern. The expected structure as jobs are added:
 
 ```
-src/main/java/com/subcharacter/springbatchforharnes/
-├── SpringBatchForHarnesApplication.java   # Entry point
+src/main/java/com/subcharacter/springbatchforharness/
+├── SpringBatchForHarnessApplication.java   # Entry point
 ├── job/          # @Configuration classes defining Job beans
 ├── step/         # Step definitions (readers, processors, writers)
 └── domain/       # Entity/model classes
